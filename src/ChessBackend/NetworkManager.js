@@ -50,7 +50,7 @@ var ChessBackend;
                     res.json({ nah: "Nah" });
                 }
                 else {
-                    res.sendFile(path_1.default.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
+                    res.sendFile(path_1.default.join(__dirname, '..', '..', 'front', 'public', 'game.html'));
                 }
             });
             app.listen(3000, () => {
@@ -59,7 +59,7 @@ var ChessBackend;
         }
         _url_exists(url) {
             const keys = Object.keys(this.Sessions);
-            console.log(keys);
+            // console.log(keys);
             return keys.some(key => {
                 return key === url;
             });

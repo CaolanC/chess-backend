@@ -71,7 +71,7 @@ export namespace ChessBackend
             }
 
             else {
-              res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
+              res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'game.html'));
             }
 
           });

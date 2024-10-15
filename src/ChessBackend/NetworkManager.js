@@ -50,7 +50,7 @@ var ChessBackend;
                 res.redirect(game_url);
             });
             app.get('/game/:game_url', (req, res) => {
-                res.json({});
+                res.sendFile(path_1.default.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
             });
             app.listen(3000, () => {
                 console.log('Server is running on port 3000');

@@ -69,7 +69,7 @@ export namespace ChessBackend
           });
 
           app.get('/game/:game_url', (req: Request, res: Response) => {
-            res.json({});
+            res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
           });
 
           app.listen(3000, () => {

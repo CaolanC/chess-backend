@@ -1,0 +1,6 @@
+[submodule "nightmarishblue"]
+	path = nightmarishblue
+	url = git@github.com:nightmarishblue/nightmarishblue.git
+[submodule "chesspp"]
+	path = chesspp
+	url = git@github.com:nightmarishblue/chesspp.git

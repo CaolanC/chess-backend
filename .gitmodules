@@ -4,3 +4,6 @@
 [submodule "chesspp"]
 	path = chesspp
 	url = git@github.com:nightmarishblue/chesspp.git
+[submodule "front"]
+	path = front
+	url = git@github.com:CaolanC/chess-frontend.git

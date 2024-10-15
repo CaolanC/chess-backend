@@ -1,8 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
+import express, { Request, Response } from 'express';  // Import Request and Response
+import path from 'path';
+
+const app = express();
 
 namespace ChessBackend
 {
-
     class Player
     {
     }
@@ -10,22 +13,27 @@ namespace ChessBackend
     class Session
     {
 
-        public readonly id: string;
-        private readonly engine_manager;
-        private readonly players: Player[];
+        public readonly ID: string;
+        private readonly Engine_Manager: EngineManager;
+        private readonly Players: Player[];
 
         constructor() {
-            this.id = this._generateSessionId();
-            this.engine_manager = new EngineManager();
-            this.players = [];
+            this.ID = this._generateSessionId();
+            this.Engine_Manager = new EngineManager();
+            this.Players = [];
+        }
+
+        public getUrl(): string {
+          const game_url = `/game/${this.ID}`
+          return game_url;
+        }
+
+        public getID(): string {
+          return this.ID;
         }
 
         private _generateSessionId(): string {
-            return uuidv4();
-        }
-
-        private _generateSessionCode(): string {
-
+          return uuidv4();
         }
     }
 
@@ -38,10 +46,41 @@ namespace ChessBackend
 
     class SessionManager
     {
-        public readonly sessions: Session[];
+        public Sessions: Session[];
 
-        SessionManager() {
-            this.sessions = [];
+        constructor() {
+          this.Sessions = [];
+        }
+
+        public start(): void {
+
+          app.use(express.static(path.join(__dirname, '..', 'front', 'public')));
+
+          app.get('/', (req: Request, res: Response) => {
+            res.sendFile(path.join(__dirname, '..', 'front', 'public', 'index.html'));
+          });
+
+          app.post('/create-game', (req: Request, res: Response) => {
+            const new_session = new Session();
+            this.Sessions.push(new_session);
+            const game_url = new_session.getUrl();
+            console.log(game_url);
+
+            res.json({createPage: "FUCK"});
+          });
+
+          app.get('/game/:game_url', (req: Request, res: Response) => {
+            res.json({});
+          });
+
+          app.listen(3000, () => {
+            console.log('Server is running on port 3000');
+          });
         }
     }
+
+const manager = new SessionManager();
+
+manager.start()
 }
+

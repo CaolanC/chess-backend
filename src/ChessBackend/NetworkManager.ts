@@ -65,8 +65,7 @@ export namespace ChessBackend
             this.Sessions.push(new_session);
             const game_url = new_session.getUrl();
             console.log(game_url);
-
-            res.json({createPage: "FUCK"});
+            res.redirect(game_url)
           });
 
           app.get('/game/:game_url', (req: Request, res: Response) => {

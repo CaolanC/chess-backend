@@ -4,7 +4,7 @@ import path from 'path';
 
 const app = express();
 
-namespace ChessBackend
+export namespace ChessBackend
 {
     class Player
     {
@@ -44,7 +44,7 @@ namespace ChessBackend
         }
     }
 
-    class SessionManager
+    export class SessionManager
     {
         public Sessions: Session[];
 
@@ -54,10 +54,10 @@ namespace ChessBackend
 
         public start(): void {
 
-          app.use(express.static(path.join(__dirname, '..', 'front', 'public')));
+          app.use(express.static(path.join(__dirname, '..', '..', 'front', 'public')));
 
           app.get('/', (req: Request, res: Response) => {
-            res.sendFile(path.join(__dirname, '..', 'front', 'public', 'index.html'));
+            res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
           });
 
           app.post('/create-game', (req: Request, res: Response) => {
@@ -79,8 +79,5 @@ namespace ChessBackend
         }
     }
 
-const manager = new SessionManager();
-
-manager.start()
 }
 

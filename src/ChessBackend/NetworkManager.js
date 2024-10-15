@@ -18,10 +18,6 @@ var ChessBackend;
             this.Engine_Manager = new EngineManager();
             this.Players = [];
         }
-        getUrl() {
-            const game_url = `/game/${this.ID}`;
-            return game_url;
-        }
         getID() {
             return this.ID;
         }
@@ -45,16 +41,28 @@ var ChessBackend;
             app.post('/create-game', (req, res) => {
                 const new_session = new Session();
                 this.Sessions.push(new_session);
-                const game_url = new_session.getUrl();
-                console.log(game_url);
-                res.redirect(game_url);
+                const game_url = new_session.getID();
+                res.redirect(`/game/${game_url}`);
             });
             app.get('/game/:game_url', (req, res) => {
-                res.sendFile(path_1.default.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
+                const url = req.params.game_url;
+                if (!(this._url_exists(url))) {
+                    res.json({ nah: "Nah" });
+                }
+                else {
+                    res.sendFile(path_1.default.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
+                }
             });
             app.listen(3000, () => {
                 console.log('Server is running on port 3000');
             });
+        }
+        _url_exists(url) {
+            return this.Sessions.some(session => {
+                const id = session.getID();
+                return id === url;
+            });
+            return false;
         }
     }
     ChessBackend.SessionManager = SessionManager;

@@ -31,7 +31,7 @@ var ChessBackend;
     }
     class SessionManager {
         constructor() {
-            this.Sessions = [];
+            this.Sessions = {};
         }
         start() {
             app.use(express_1.default.static(path_1.default.join(__dirname, '..', '..', 'front', 'public')));
@@ -40,8 +40,8 @@ var ChessBackend;
             });
             app.post('/create-game', (req, res) => {
                 const new_session = new Session();
-                this.Sessions.push(new_session);
                 const game_url = new_session.getID();
+                this.Sessions[game_url] = new_session;
                 res.redirect(`/game/${game_url}`);
             });
             app.get('/game/:game_url', (req, res) => {
@@ -58,11 +58,11 @@ var ChessBackend;
             });
         }
         _url_exists(url) {
-            return this.Sessions.some(session => {
-                const id = session.getID();
-                return id === url;
+            const keys = Object.keys(this.Sessions);
+            console.log(keys);
+            return keys.some(key => {
+                return key === url;
             });
-            return false;
         }
     }
     ChessBackend.SessionManager = SessionManager;

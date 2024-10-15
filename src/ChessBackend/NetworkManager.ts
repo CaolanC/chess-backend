@@ -42,10 +42,10 @@ export namespace ChessBackend
 
     export class SessionManager
     {
-        public Sessions: Session[];
+        public Sessions: { [key: string]: Session };
 
         constructor() {
-          this.Sessions = [];
+          this.Sessions = {};
         }
 
         public start(): void {
@@ -58,8 +58,8 @@ export namespace ChessBackend
 
           app.post('/create-game', (req: Request, res: Response) => {
             const new_session = new Session();
-            this.Sessions.push(new_session);
             const game_url = new_session.getID();
+            this.Sessions[game_url] = new_session;
             res.redirect(`/game/${game_url}`)
           });
 
@@ -68,7 +68,9 @@ export namespace ChessBackend
             const url = req.params.game_url;
             if (!(this._url_exists(url))) {
               res.json({nah: "Nah"});
-            } else {
+            }
+
+            else {
               res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
             }
 
@@ -80,13 +82,12 @@ export namespace ChessBackend
         }
 
         private _url_exists(url: string): boolean {
-          
-          return this.Sessions.some(session => {
-              const id = session.getID();
-              return id === url;
+        
+          const keys = Object.keys(this.Sessions);
+          // console.log(keys);
+          return keys.some(key => {
+            return key === url;
           });
-
-          return false;
         }
     }
 

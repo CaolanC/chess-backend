@@ -43,6 +43,7 @@ export namespace ChessBackend
     export class SessionManager
     {
         public Sessions: { [key: string]: Session };
+        private SecretKey: string;
 
         constructor() {
           this.Sessions = {};

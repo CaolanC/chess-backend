@@ -11,7 +11,7 @@ const app = express();
 const MAX_PLAYERS = 2;
 
 export namespace ChessBackend {
-    class Player {
+    export class Player {
         public readonly Name: string;
         private readonly ClientID: string;
 
@@ -25,7 +25,7 @@ export namespace ChessBackend {
         }
     }
 
-    class Session {
+    export class Session {
         public readonly ID: string;
         private readonly Engine_Manager: EngineManager;
         private readonly Players: Player[];
@@ -76,74 +76,23 @@ export namespace ChessBackend {
             this.SecretKey = secret_key;
         }
 
-        public start(): void {
-            app.use(express.static(path.join(__dirname, '..', '..', 'front', 'public')));
-            app.use(cookieParser());
-
-            app.get('/', (req, res) => {
-                res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
-            });
-
-            app.post('/create-game', (req, res) => {
-                const new_session = new Session();
-                const game_url = new_session.getID();
-
-                let player: Player = new Player();
-                new_session.addPlayer(player);
-                this.Sessions[game_url] = new_session;
-
-                const player_id = player.getID();
-                res.cookie('clientInfo', { player_id, game_url }, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'strict',
-                    maxAge: 24 * 60 * 60 * 1000
-                });
-
-                res.redirect(`/game/${game_url}`);
-            });
-
-            // Fixing the route handler by letting Express infer types for req and res
-            app.get('/game/:game_url', (req: any, res: any) => {
-                const { clientInfo } = req.cookies;
-                const url = req.params.game_url;
-
-                if (!(this._url_exists(url))) {
-                    return res.status(404).send('Session not found.');
-                }
-
-                const session = this.Sessions[url];
-
-                if (clientInfo && clientInfo.player_id) {
-                    const playerExists = session.hasPlayer(clientInfo.player_id);
-                    if (playerExists) {
-                        return res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'game.html'));
-                    }
-                }
-
-                if (!session.isJoinable()) {
-                    return res.status(403).send('Session is full.');
-                }
-
-                const player = new Player();
-                session.addPlayer(player);
-                const player_id = player.getID();
-                res.cookie('clientInfo', { player_id, url }, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'strict',
-                    maxAge: 24 * 60 * 60 * 1000
-                });
-
-                return res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'game.html'));
-            });
-
-            app.listen(3000, () => {
-                console.log('Server is running on port 3000');
-            });
+        public addSession(new_session: Session): boolean {
+            this.Sessions[new_session.getID()] = new_session;
+            if (new_session.getID() in this.Sessions) {
+                return false;
+            }
+            return true;
         }
 
-        private _url_exists(url: string): boolean {
+        public getSession(session_id: string): Session | undefined {
+            if (session_id in this.Sessions) {
+                return this.Sessions[session_id];
+            }
+
+            return undefined;
+        }
+
+        public urlExists(url: string): boolean {
             const keys = Object.keys(this.Sessions);
             return keys.includes(url);
         }

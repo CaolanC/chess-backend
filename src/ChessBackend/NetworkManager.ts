@@ -1,18 +1,31 @@
 import { v4 as uuidv4 } from 'uuid';
-import express, { Request, Response } from 'express';  // Import Request and Response
+import express from 'express';
 import path from 'path';
+
+require('dotenv').config();
+
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
-export namespace ChessBackend
-{
-    class Player
-    {
+const MAX_PLAYERS = 2;
+
+export namespace ChessBackend {
+    export class Player {
+        public readonly Name: string;
+        private readonly ClientID: string;
+
+        constructor(name: string = "Guest") {
+            this.Name = name;
+            this.ClientID = uuidv4();
+        }
+
+        public getID() {
+            return this.ClientID;
+        }
     }
 
-    class Session
-    {
-
+    export class Session {
         public readonly ID: string;
         private readonly Engine_Manager: EngineManager;
         private readonly Players: Player[];
@@ -23,73 +36,66 @@ export namespace ChessBackend
             this.Players = [];
         }
 
+        public addPlayer(player: Player): boolean {
+            if (!(this.isJoinable())) {
+                return false;
+            }
+            this.Players.push(player);
+            return true;
+        }
+
+        public hasPlayer(id: string): boolean {
+            return this.Players.some(player => {
+                return player.getID() === id;
+            });
+        }
+
+        public isJoinable(): boolean {
+            return this.Players.length < MAX_PLAYERS;
+        }
 
         public getID(): string {
-          return this.ID;
+            return this.ID;
         }
 
         private _generateSessionId(): string {
-          return uuidv4();
+            return uuidv4();
         }
     }
 
-    class EngineManager
-    {
-        constructor() {
-            
-        }
+    class EngineManager {
+        constructor() { }
     }
 
-    export class SessionManager
-    {
+    export class SessionManager {
         public Sessions: { [key: string]: Session };
+        private SecretKey: string;
 
-        constructor() {
-          this.Sessions = {};
+        constructor(secret_key: string = "lol") {
+            this.Sessions = {};
+            this.SecretKey = secret_key;
         }
 
-        public start(): void {
-
-          app.use(express.static(path.join(__dirname, '..', '..', 'front', 'public')));
-
-          app.get('/', (req: Request, res: Response) => {
-            res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
-          });
-
-          app.post('/create-game', (req: Request, res: Response) => {
-            const new_session = new Session();
-            const game_url = new_session.getID();
-            this.Sessions[game_url] = new_session;
-            res.redirect(`/game/${game_url}`)
-          });
-
-          app.get('/game/:game_url', (req: Request, res: Response) => {
-            
-            const url = req.params.game_url;
-            if (!(this._url_exists(url))) {
-              res.json({nah: "Nah"});
+        public addSession(new_session: Session): boolean {
+            this.Sessions[new_session.getID()] = new_session;
+            if (new_session.getID() in this.Sessions) {
+                return false;
             }
-
-            else {
-              res.sendFile(path.join(__dirname, '..', '..', 'front', 'public', 'index.html'));
-            }
-
-          });
-
-          app.listen(3000, () => {
-            console.log('Server is running on port 3000');
-          });
+            return true;
         }
 
-        private _url_exists(url: string): boolean {
-        
-          const keys = Object.keys(this.Sessions);
-          // console.log(keys);
-          return keys.some(key => {
-            return key === url;
-          });
+        public getSession(session_id: string): Session | undefined {
+            if (session_id in this.Sessions) {
+                return this.Sessions[session_id];
+            }
+
+            return undefined;
+        }
+
+        public urlExists(url: string): boolean {
+            const keys = Object.keys(this.Sessions);
+            return keys.includes(url);
         }
     }
-
 }
 

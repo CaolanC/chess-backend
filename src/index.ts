@@ -79,8 +79,8 @@ function StartApp(): void {
         return res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
         });
 
-    app.listen(3000, () => {
-        console.log('Server is running on port 3000');
+    app.listen(5299, () => {
+        console.log('Server is running on port 5299');
     });
 }
 

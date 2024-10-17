@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "init": "npm install && git submodule init && git submodule update && npm run init --prefix ./front/",
+    "init": "npm install && git submodule init && git submodule update && (git -C ./front/ checkout -b page-separation origin/page-separation || git -C ./front/ checkout page-separation) && npm run init --prefix ./front/",
     "build": "tsc",
     "start": "node ./dist/index.js",
     "run": "npm run build && npm run start",

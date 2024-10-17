@@ -19,18 +19,18 @@ function StartApp(): void {
     app.use(express.static(path.resolve(projectRoot, '..', 'public')));
     app.use(cookieParser());
 
-    app.get('/', (req, res) => {
+    app.get('/', (req, res) => { // The home-page
         res.sendFile(path.resolve(projectRoot, '..', 'public', 'index.html'));
     });
 
-    app.post('/create-game', (req, res) => {
+    app.post('/create-game', (req, res) => { // Endpoint creates a session
         const new_session = new ChessBackend.Session();
         const game_url = new_session.getID();
         const player = new ChessBackend.Player();
         new_session.addPlayer(player);
         manager.addSession(new_session);
         const player_id = player.getID();
-        res.cookie('clientInfo', { player_id, game_url }, {
+        res.cookie('clientInfo', { player_id, game_url }, { // Cookie contains the player_id and session_id, means that we can verify who this client is
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
@@ -41,7 +41,7 @@ function StartApp(): void {
     });
 
             // Fixing the route handler by letting Express infer types for req and res
-    app.get('/game/:game_url', (req: any, res: any) => {
+    app.get('/game/:game_url', (req: any, res: any) => { // Joining a generated session
         const { clientInfo } = req.cookies;
         const url = req.params.game_url;
 
@@ -55,7 +55,7 @@ function StartApp(): void {
             return res.status(404).send('Session not found.');
         }
 
-        if (clientInfo && clientInfo.player_id) {
+        if (clientInfo && clientInfo.player_id) { // If it's the host / someone who has already joined.
             const playerExists = session.hasPlayer(clientInfo.player_id);
             if (playerExists) {
                 return res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
@@ -69,7 +69,7 @@ function StartApp(): void {
         const player = new ChessBackend.Player();
         session.addPlayer(player);
         const player_id = player.getID();
-        res.cookie('clientInfo', { player_id, url }, {
+        res.cookie('clientInfo', { player_id, url }, { // If the player is new we generated a new session ID for them (when initializing the player object
             httpOnly: true,
             secure: true,
             sameSite: 'strict',

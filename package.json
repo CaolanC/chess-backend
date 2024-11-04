@@ -4,17 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "init": "npm install && git submodule init && git submodule update && (git -C ./front/ checkout -b page-separation origin/page-separation || git -C ./front/ checkout page-separation) && npm run init --prefix ./front/",
-    "build": "tsc",
+    "init": "npm install && git submodule init && git submodule update && (git -C ./front/ checkout -b page-separation origin/page-separation || git -C ./front/ checkout page-separation) && npm run init --prefix ./front",
+    "build": "tsc && npm run build:front",
+    "build:front": "npm run build --prefix ./front",
+    "dev:server": "ts-node-dev --respawn ./src/index.ts",
+    "dev:front": "npm run dev --prefix ./front",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:front\"",
     "start": "node ./dist/index.js",
-    "run": "npm run build && npm run start",
-    "random_secret": "node ./dev-scripts/generate_secret_token.js"
+    "run": "npm run build && npm run start"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.7.5",
+    "concurrently": "^9.1.0",
     "ts-node-dev": "^2.0.0"
   },
   "dependencies": {

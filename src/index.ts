@@ -4,80 +4,78 @@ import SessionManager from './ChessBackend/SessionManager';
 
 import express from 'express';
 import path from 'path';
-import cookieParser from 'cookie-parser';
+import cookieSession from 'cookie-session';
 
-const app = express();
+import { v4 as uuidv4 } from 'uuid';
+
 const projectRoot = path.resolve(__dirname);
 const manager = new SessionManager();
 
-StartApp();
+const app = express();
+app.use(cookieSession({
+    secret: "totally_secret_key_use_in_prod",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+}));
 
-function StartApp(): void {
-    app.use(express.static(path.resolve(projectRoot, '..', 'public')));
-    app.use(cookieParser());
+app.get('/', (req: express.Request, res: express.Response) => { // The home-page
+    // if the client has no ID, give them one
+    if (!req.session) {
+        res.status(500).send("No session?");
+        return;
+    }
 
-    app.get('/', (req, res) => { // The home-page
-        res.sendFile(path.resolve(projectRoot, '..', 'public', 'index.html'));
-    });
+    if (!req.session.user) {
+        req.session.user = new Player(uuidv4());
+    }
 
-    app.post('/create-game', (req, res) => { // Endpoint creates a session
-        const new_session = new Session();
-        const game_url = new_session.getID();
-        const player = new Player();
-        new_session.addPlayer(player);
-        manager.addSession(new_session);
-        const player_id = player.getID();
-        res.cookie('clientInfo', { player_id, game_url }, { // Cookie contains the player_id and session_id, means that we can verify who this client is
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000
-        });
+    res.sendFile(path.resolve(projectRoot, '..', 'public', 'index.html'));
+});
 
-        res.redirect(`/game/${game_url}`);
-    });
+app.post('/create-game', (req, res) => { // Endpoint creates a session
+    if (!req.session?.user) {
+        res.redirect("/");
+        return;
+    }
 
-            // Fixing the route handler by letting Express infer types for req and res
-    app.get('/game/:game_url', (req: any, res: any) => { // Joining a generated session
-        const { clientInfo } = req.cookies;
-        const url = req.params.game_url;
+    const host = req.session.user;
+    const new_session = new Session(host);
+    // const game_url = new_session.getID();
 
-        if (!(manager.sessionExists(url))) {
-            return res.status(404).send('Session not found.');
-        }
+    manager.addSession(new_session);
 
-        const session = manager.getSession(url);
+    res.redirect(`/game/${new_session.ID}`);
+});
 
-        if (!session) {
-            return res.status(404).send('Session not found.');
-        }
+app.get('/game/:game_url', (req: express.Request, res: express.Response): void => { // Joining a generated session
+    if (!req.session?.user) {
+        res.redirect("/");
+        return;
+    }
 
-        if (clientInfo && clientInfo.player_id) { // If it's the host / someone who has already joined.
-            const playerExists = session.hasPlayer(clientInfo.player_id);
-            if (playerExists) {
-                return res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
-            }
-        }
+    const sessionId = req.params.game_url;
+    const session = manager.getSession(sessionId);
 
-        if (!session.isJoinable()) {
-            return res.status(403).send('Session is full.');
-        }
+    if (session === undefined) {
+        res.status(404).send('Session not found.');
+        return;
+    }
 
-        const player = new Player();
-        session.addPlayer(player);
-        const player_id = player.getID();
-        res.cookie('clientInfo', { player_id, url }, { // If the player is new we generated a new session ID for them (when initializing the player object
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000
-        });
+    const player = req.session.user;
+    if (session.hasPlayer(player.ClientID)) { // If it's the host / someone who has already joined.
+        res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
+        return;
+    }
 
-        return res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
-        });
+    if (!session.isJoinable()) {
+        res.status(403).send('Session is full.');
+        return;
+    }
 
-    app.listen(5299, () => {
-        console.log('Server is running on port 5299');
-    });
-}
+    session.addPlayer(player);
 
+    res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
+});
+
+app.listen(5299, () => {
+    console.log('Server is running on port 5299');
+});

@@ -1,17 +1,14 @@
-import { ChessBackend } from './ChessBackend/NetworkManager';
-import { v4 as uuidv4 } from 'uuid';
+import Player from './ChessBackend/Player';
+import Session from './ChessBackend/Session';
+import SessionManager from './ChessBackend/SessionManager';
+
 import express from 'express';
 import path from 'path';
-const cookieParser = require('cookie-parser');
+import cookieParser from 'cookie-parser';
+
 const app = express();
-
-require('dotenv').config();
-
-const MAX_PLAYERS = 2;
-
 const projectRoot = path.resolve(__dirname);
-
-const manager = new ChessBackend.SessionManager();
+const manager = new SessionManager();
 
 StartApp();
 
@@ -24,9 +21,9 @@ function StartApp(): void {
     });
 
     app.post('/create-game', (req, res) => { // Endpoint creates a session
-        const new_session = new ChessBackend.Session();
+        const new_session = new Session();
         const game_url = new_session.getID();
-        const player = new ChessBackend.Player();
+        const player = new Player();
         new_session.addPlayer(player);
         manager.addSession(new_session);
         const player_id = player.getID();
@@ -66,7 +63,7 @@ function StartApp(): void {
             return res.status(403).send('Session is full.');
         }
 
-        const player = new ChessBackend.Player();
+        const player = new Player();
         session.addPlayer(player);
         const player_id = player.getID();
         res.cookie('clientInfo', { player_id, url }, { // If the player is new we generated a new session ID for them (when initializing the player object

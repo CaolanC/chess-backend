@@ -42,7 +42,7 @@ function StartApp(): void {
         const { clientInfo } = req.cookies;
         const url = req.params.game_url;
 
-        if (!(manager.urlExists(url))) {
+        if (!(manager.sessionExists(url))) {
             return res.status(404).send('Session not found.');
         }
 

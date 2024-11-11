@@ -10,8 +10,8 @@ export default class SessionManager {
     }
 
     public addSession(new_session: Session): boolean {
-        this.Sessions.set(new_session.getID(), new_session);
-        return (this.Sessions.has(new_session.getID()));
+        this.Sessions.set(new_session.ID, new_session);
+        return (this.Sessions.has(new_session.ID));
     }
 
     public getSession(session_id: string): Session | undefined {

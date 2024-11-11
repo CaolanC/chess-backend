@@ -1,9 +1,3 @@
-[submodule "nightmarishblue"]
-	path = nightmarishblue
-	url = git@github.com:nightmarishblue/nightmarishblue.git
-[submodule "chesspp"]
-	path = chesspp
-	url = git@github.com:nightmarishblue/chesspp.git
 [submodule "front"]
 	path = front
 	url = git@github.com:CaolanC/chess-frontend.git

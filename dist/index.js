@@ -34,6 +34,15 @@ function StartApp() {
         });
         res.redirect(`/game/${game_url}`);
     });
+    app.get('/tests/fen', (req, res) => {
+        try {
+            res.setHeader('Content-Type', 'text/plain');
+            res.send("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        }
+        catch (error) {
+            res.status(500).send("Something went wrong.");
+        }
+    });
     // Fixing the route handler by letting Express infer types for req and res
     app.get('/game/:game_url', (req, res) => {
         const { clientInfo } = req.cookies;

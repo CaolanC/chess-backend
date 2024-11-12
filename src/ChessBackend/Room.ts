@@ -1,10 +1,14 @@
 import Client from './Client';
+import { Chess } from 'chess.js';
 
 import { v4 as uuidv4 } from 'uuid';
+
+type Chessboard = Chess;
 
 export default class Room {
     public readonly ID: string = uuidv4();
     private readonly Players: [Client, Client?];
+    private readonly Board: Chessboard = new Chess();
 
     constructor(host: Client) {
         this.Players = [host];

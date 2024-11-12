@@ -9,7 +9,7 @@ import express from 'express';
 import path from 'path';
 import cookieSession from 'cookie-session';
 
-const projectRoot = path.resolve(__dirname);
+const publicDir = path.resolve(__dirname, "..", "public");
 const manager = new RoomManager();
 
 const app = express();
@@ -20,9 +20,9 @@ app.use(cookieSession({
 app.use(validateSession);
 
 app.get(Routes.HOME, (req: express.Request, res: express.Response) => { // The home-page
-    res.sendFile(path.resolve(projectRoot, '..', 'public', 'index.html'));
+    res.sendFile(path.resolve(publicDir, 'index.html'));
 });
-app.use(express.static(path.resolve(projectRoot, '..', 'public')));
+app.use(express.static(publicDir));
 
 // TODO make this POST probably
 app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
@@ -76,7 +76,7 @@ app.get(Routes.ROOM, (req: express.Request, res: express.Response) => { // Joini
         return;
     }
 
-    res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
+    res.sendFile(path.join(publicDir, 'game.html'));
 });
 
 app.listen(5299, () => {

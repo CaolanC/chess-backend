@@ -1,6 +1,6 @@
 import Client from './ChessBackend/Client';
 import Room from './ChessBackend/Room';
-import SessionManager from './ChessBackend/SessionManager';
+import RoomManager from './ChessBackend/RoomManager';
 
 import express from 'express';
 import path from 'path';
@@ -9,7 +9,7 @@ import cookieSession from 'cookie-session';
 import { v4 as uuidv4 } from 'uuid';
 
 const projectRoot = path.resolve(__dirname);
-const manager = new SessionManager();
+const manager = new RoomManager();
 
 const app = express();
 app.use(cookieSession({

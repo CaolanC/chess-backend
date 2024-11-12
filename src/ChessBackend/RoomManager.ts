@@ -1,6 +1,6 @@
 import Room from "./Room";
 
-export default class SessionManager {
+export default class RoomManager {
     public Rooms: Map<string, Room>; // { [key: string]: Session };
     // private SecretKey: string; // TODO probably remove
 

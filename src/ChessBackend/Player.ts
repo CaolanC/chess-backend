@@ -1,7 +1,13 @@
 export default class Client {
-    public readonly ClientID: string;
+    public readonly Id: string;
+    private Name?: string;
 
-    constructor(client_id: string) {
-        this.ClientID = client_id;
+    constructor(id: string, name?: string) {
+        this.Id = id;
+        this.Name = name;
+    }
+
+    public name(): string | undefined {
+        return this.Name;
     }
 }

@@ -18,7 +18,7 @@ export default class Session {
 
     public hasPlayer(id: string): boolean {
         return this.Players.some(player => {
-            return player?.ClientID === id;
+            return player?.Id === id;
         });
     }
 

@@ -52,7 +52,7 @@ app.post('/create-game', (req, res) => { // Endpoint creates a session
     const new_session = new Room(host);
     // const game_url = new_session.getID();
 
-    manager.addSession(new_session);
+    manager.addRoom(new_session);
 
     res.redirect(`/game/${new_session.ID}`);
 });
@@ -64,7 +64,7 @@ app.get('/game/:game_url', (req: express.Request, res: express.Response): void =
     }
 
     const sessionId = req.params.game_url;
-    const session = manager.getSession(sessionId);
+    const session = manager.getRoom(sessionId);
 
     if (session === undefined) {
         res.status(404).send('Session not found.');

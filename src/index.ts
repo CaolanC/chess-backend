@@ -31,6 +31,17 @@ app.get('/', (req: express.Request, res: express.Response) => { // The home-page
     res.sendFile(path.resolve(projectRoot, '..', 'public', 'index.html'));
 });
 
+// TODO make this POST probably
+app.get('/register/:username', (req: express.Request, res: express.Response) => {
+    if (!req.session?.user) {
+        res.redirect("/");
+        return;
+    }
+
+    req.session.user.Name = req.params.username;
+    res.send(`you did it mr. ${req.session.user.Name}`)
+})
+
 app.post('/create-game', (req, res) => { // Endpoint creates a session
     if (!req.session?.user) {
         res.redirect("/");

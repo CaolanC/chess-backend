@@ -1,5 +1,5 @@
 import Client from './ChessBackend/Client';
-import Session from './ChessBackend/Session';
+import Room from './ChessBackend/Room';
 import SessionManager from './ChessBackend/SessionManager';
 
 import express from 'express';
@@ -49,7 +49,7 @@ app.post('/create-game', (req, res) => { // Endpoint creates a session
     }
 
     const host = req.session.user;
-    const new_session = new Session(host);
+    const new_session = new Room(host);
     // const game_url = new_session.getID();
 
     manager.addSession(new_session);

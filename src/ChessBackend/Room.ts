@@ -2,7 +2,7 @@ import Client from './Client';
 
 import { v4 as uuidv4 } from 'uuid';
 
-export default class Session {
+export default class Room {
     public readonly ID: string = uuidv4();
     private readonly Players: [Client, Client?];
 

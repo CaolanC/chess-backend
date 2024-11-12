@@ -20,6 +20,7 @@ app.use(validateSession);
 app.get('/', (req: express.Request, res: express.Response) => { // The home-page
     res.sendFile(path.resolve(projectRoot, '..', 'public', 'index.html'));
 });
+app.use(express.static(path.resolve(projectRoot, '..', 'public')));
 
 // TODO make this POST probably
 app.get('/register/:username', (req: express.Request, res: express.Response) => {

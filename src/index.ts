@@ -71,8 +71,8 @@ app.get('/game/:game_url', (req: express.Request, res: express.Response): void =
         return;
     }
 
-    const player = req.session.user;
-    if (session.hasPlayer(player.ClientID)) { // If it's the host / someone who has already joined.
+    const player: Client = req.session.user;
+    if (session.hasPlayer(player.Id)) { // If it's the host / someone who has already joined.
         res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
         return;
     }

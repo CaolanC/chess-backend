@@ -1,4 +1,4 @@
-import Client from './Player';
+import Client from './Client';
 
 import { v4 as uuidv4 } from 'uuid';
 

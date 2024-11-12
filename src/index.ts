@@ -1,4 +1,4 @@
-import Client from './ChessBackend/Player';
+import Client from './ChessBackend/Client';
 import Session from './ChessBackend/Session';
 import SessionManager from './ChessBackend/SessionManager';
 

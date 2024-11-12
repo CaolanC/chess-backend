@@ -1,4 +1,4 @@
-import Player from './ChessBackend/Player';
+import Client from './ChessBackend/Player';
 import Session from './ChessBackend/Session';
 import SessionManager from './ChessBackend/SessionManager';
 
@@ -25,7 +25,7 @@ app.get('/', (req: express.Request, res: express.Response) => { // The home-page
     }
 
     if (!req.session.user) {
-        req.session.user = new Player(uuidv4());
+        req.session.user = new Client(uuidv4());
     }
 
     res.sendFile(path.resolve(projectRoot, '..', 'public', 'index.html'));

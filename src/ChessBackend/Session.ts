@@ -1,16 +1,16 @@
-import Player from './Player';
+import Client from './Player';
 
 import { v4 as uuidv4 } from 'uuid';
 
 export default class Session {
     public readonly ID: string = uuidv4();
-    private readonly Players: [Player, Player?];
+    private readonly Players: [Client, Client?];
 
-    constructor(host: Player) {
+    constructor(host: Client) {
         this.Players = [host];
     }
 
-    public addPlayer(player: Player): boolean {
+    public addPlayer(player: Client): boolean {
         if (!(this.isJoinable())) return false;
         this.Players[1] = player;
         return true;
@@ -26,11 +26,11 @@ export default class Session {
         return this.black() === undefined; // black player isn't here yet
     }
 
-    public white(): Player {
+    public white(): Client {
         return this.Players[0];
     }
 
-    public black(): Player | undefined {
+    public black(): Client | undefined {
         return this.Players[1];
     }
 }

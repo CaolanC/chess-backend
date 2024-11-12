@@ -1,7 +1,9 @@
 import Client from './ChessBackend/Client';
 import Room from './ChessBackend/Room';
 import RoomManager from './ChessBackend/RoomManager';
+
 import validateSession from './ChessBackend/Session';
+import Routes from './routes';
 
 import express from 'express';
 import path from 'path';
@@ -17,18 +19,18 @@ app.use(cookieSession({
 }));
 app.use(validateSession);
 
-app.get('/', (req: express.Request, res: express.Response) => { // The home-page
+app.get(Routes.HOME, (req: express.Request, res: express.Response) => { // The home-page
     res.sendFile(path.resolve(projectRoot, '..', 'public', 'index.html'));
 });
 app.use(express.static(path.resolve(projectRoot, '..', 'public')));
 
 // TODO make this POST probably
-app.get('/register/:username', (req: express.Request, res: express.Response) => {
+app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
     req.session!.user.Name = req.params.username;
     res.send(`you did it mr. ${req.session!.user.Name}`)
 })
 
-app.post('/create-game', (req, res) => { // Endpoint creates a session
+app.post(Routes.CREATE, (req, res) => { // Endpoint creates a session
     const host = req.session!.user;
     const new_session = new Room(host);
     // const game_url = new_session.getID();
@@ -38,7 +40,11 @@ app.post('/create-game', (req, res) => { // Endpoint creates a session
     res.redirect(`/game/${new_session.ID}`);
 });
 
-app.get('/game/:game_url', (req: express.Request, res: express.Response): void => { // Joining a generated session
+app.get(Routes.JOIN, (req: express.Request, res: express.Response) => {
+    
+});
+
+app.get(Routes.ROOM, (req: express.Request, res: express.Response) => { // Joining a generated session
     const sessionId = req.params.game_url;
     const session = manager.getRoom(sessionId);
 

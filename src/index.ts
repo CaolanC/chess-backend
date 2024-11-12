@@ -33,38 +33,48 @@ app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
 app.post(Routes.CREATE, (req, res) => { // Endpoint creates a session
     const host = req.session!.user;
     const new_session = new Room(host);
-    // const game_url = new_session.getID();
 
     manager.addRoom(new_session);
-
-    res.redirect(`/game/${new_session.ID}`);
+    res.redirect(`/room/${new_session.ID}`);
 });
 
+// TODO this should be a POST
 app.get(Routes.JOIN, (req: express.Request, res: express.Response) => {
-    
+    const room = manager.getRoom(req.params.room_id);
+    if (!room) {
+        res.status(404).send('Room not found.');
+        return;
+    }
+
+    const player: Client = req.session!.user;
+    // if you're already in this game, we can just send you there
+    if (room.hasPlayer(player.Id)) {
+        res.redirect(`/room/${room.ID}`); // HACK dont like hardcoding this
+        return;
+    }
+
+    if (!room.isJoinable()) {
+        res.status(403).send('Session is full.');
+        return;
+    }
+
+    room.addPlayer(player);
+    res.redirect(`/room/${room.ID}`);
 });
 
 app.get(Routes.ROOM, (req: express.Request, res: express.Response) => { // Joining a generated session
-    const sessionId = req.params.game_url;
-    const session = manager.getRoom(sessionId);
+    const room = manager.getRoom(req.params.room_id);
 
-    if (session === undefined) {
+    if (room === undefined) {
         res.status(404).send('Session not found.');
         return;
     }
 
     const player: Client = req.session!.user;
-    if (session.hasPlayer(player.Id)) { // If it's the host / someone who has already joined.
-        res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
+    if (!room.hasPlayer(player.Id)) {
+        res.status(403).send("You're not part of this game");
         return;
     }
-
-    if (!session.isJoinable()) {
-        res.status(403).send('Session is full.');
-        return;
-    }
-
-    session.addPlayer(player);
 
     res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
 });

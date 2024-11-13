@@ -9,7 +9,7 @@ export default class Client {
         this.Name = name;
     }
 
-    // public name(): string | undefined {
-    //     return this.Name;
-    // }
+    public is(other: Client): boolean {
+        return this.Id == other.Id;
+    }
 }

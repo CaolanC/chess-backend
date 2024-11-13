@@ -7,6 +7,7 @@ import express, { Request, Response, Router, NextFunction } from "express";
 import path from 'path';
 
 export const roomManager = new RoomManager();
+// all endpoints on the rooms route require you to be part of the room - todo bien
 const rooms: Router = express.Router({mergeParams: true});
 rooms.use(roomExists);
 rooms.use(inRoom);
@@ -30,8 +31,11 @@ export function inRoom(req: Request, res: Response, next: NextFunction): void {
     next();
 }
 
-rooms.get('/', (req: express.Request, res: express.Response) => {
+rooms.get('/', (req: Request, res: Response) => {
     res.sendFile(path.join(publicDir, 'game.html'));
+});
+
+rooms.get('/board', (req: Request, res: Response) => {
 });
 
 export default rooms;

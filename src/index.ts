@@ -47,7 +47,7 @@ app.get(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) =
         return;
     }
 
-    if (req.room!.isJoinable()) {
+    if (!req.room!.isJoinable()) {
         res.status(403).send('Session is full.');
         return;
     }

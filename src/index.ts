@@ -1,17 +1,14 @@
 import Client from './ChessBackend/Client';
 import Room from './ChessBackend/Room';
-import RoomManager from './ChessBackend/RoomManager';
 
 import { publicDir } from './constants';
 import validateSession from './ChessBackend/Session';
 import Routes from './routes';
+import rooms, { roomExists, roomManager } from './rooms';
 
 import express from 'express';
 import path from 'path';
 import cookieSession from 'cookie-session';
-
-const publicDir = path.resolve(__dirname, "..", "public");
-const manager = new RoomManager();
 
 const app = express();
 app.use(cookieSession({
@@ -25,6 +22,8 @@ app.get(Routes.HOME, (req: express.Request, res: express.Response) => { // The h
 });
 app.use(express.static(publicDir));
 
+app.use(Routes.ROOM + Routes.ROOM_ID, rooms);
+
 // TODO make this POST probably
 app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
     req.session!.user.Name = req.params.username;
@@ -33,51 +32,29 @@ app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
 
 app.post(Routes.CREATE, (req, res) => { // Endpoint creates a session
     const host = req.session!.user;
-    const new_session = new Room(host);
+    const newRoom = new Room(host);
 
-    manager.addRoom(new_session);
-    res.redirect(`/room/${new_session.ID}`);
+    roomManager.addRoom(newRoom);
+    res.redirect(`${Routes.ROOM}/${newRoom.ID}`);
 });
 
 // TODO this should be a POST
-app.get(Routes.JOIN, (req: express.Request, res: express.Response) => {
-    const room = manager.getRoom(req.params.room_id);
-    if (!room) {
-        res.status(404).send('Room not found.');
-        return;
-    }
-
+app.get(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) => {
+    const roomUrl = `${Routes.ROOM}/${req.room!.ID}`;
     const player: Client = req.session!.user;
     // if you're already in this game, we can just send you there
-    if (room.hasPlayer(player.Id)) {
-        res.redirect(`/room/${room.ID}`); // HACK dont like hardcoding this
+    if (req.room!.hasPlayer(player.Id)) {
+        res.redirect(roomUrl);
         return;
     }
 
-    if (!room.isJoinable()) {
+    if (req.room!.isJoinable()) {
         res.status(403).send('Session is full.');
         return;
     }
 
-    room.addPlayer(player);
-    res.redirect(`/room/${room.ID}`);
-});
-
-app.get(Routes.ROOM, (req: express.Request, res: express.Response) => { // Joining a generated session
-    const room = manager.getRoom(req.params.room_id);
-
-    if (room === undefined) {
-        res.status(404).send('Session not found.');
-        return;
-    }
-
-    const player: Client = req.session!.user;
-    if (!room.hasPlayer(player.Id)) {
-        res.status(403).send("You're not part of this game");
-        return;
-    }
-
-    res.sendFile(path.join(publicDir, 'game.html'));
+    req.room!.addPlayer(player);
+    res.redirect(roomUrl);
 });
 
 app.listen(5299, () => {

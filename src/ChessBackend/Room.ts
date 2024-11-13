@@ -46,12 +46,11 @@ export default class Room {
         return this.Board.moves({square: coord, verbose: true}).map(e => e.to);
     }
 
-    public move(move: Move): boolean {
+    public move(move: Move): Move | null {
         try {
-            this.Board.move(move);
-            return true;
+            return this.Board.move(move);
         } catch (e: unknown) {
-            return false;
+            return null;
         }
     }
 

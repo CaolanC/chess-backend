@@ -5,7 +5,7 @@ import { publicDir } from './constants';
 
 import express, { Request, Response, Router, NextFunction } from "express";
 import path from 'path';
-import { Square, SQUARES } from 'chess.js';
+import { Move, Square, SQUARES } from 'chess.js';
 
 declare module 'express-serve-static-core' {
     interface Request {
@@ -62,6 +62,20 @@ rooms.get('/moves', (req: Request, res: Response) => {
 
     const moves: Square[] = req.room!.getMoves(square);
     res.send(moves);
+});
+
+rooms.post('/move', (req: Request, res: Response) => {
+    if (!(req.body.from && req.body.to)) {
+        res.status(400).send("Malformed move");
+        return;
+    }
+
+    const status: Move | null = req.room!.move(req.body as Move);
+    if (status) {
+        res.json(status);
+    } else {
+        res.status(400).send("Invalid move");
+    }
 });
 
 export default rooms;

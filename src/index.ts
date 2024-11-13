@@ -16,6 +16,7 @@ app.use(cookieSession({
     maxAge: 7 * 24 * 60 * 60 * 1000,
 }));
 app.use(enforceSession);
+app.use(express.json()); // read every POST as JSON
 
 app.get(Routes.HOME, (req: express.Request, res: express.Response) => { // The home-page
     res.sendFile(path.resolve(publicDir, 'index.html'));

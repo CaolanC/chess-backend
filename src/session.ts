@@ -3,13 +3,8 @@ import { Request, Response, NextFunction } from "express";
 
 const CURRENT_VERSION: number = 0;
 
-declare module 'express' {
-    interface Request {
-        user?: Client;
-    }
-}
-
 // middleware to maintain a valid user session
+// adds req.user
 export default function enforceSession(req: Request, res: Response, next: NextFunction): void {
     if (!req.session) {
         res.status(500).send("No session?");

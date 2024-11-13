@@ -11,12 +11,7 @@ const rooms: Router = express.Router({mergeParams: true});
 rooms.use(roomExists);
 rooms.use(inRoom);
 
-declare module 'express' {
-    interface Request {
-        room?: Room;
-    }
-}
-
+// adds req.room
 export function roomExists(req: Request, res: Response, next: NextFunction): void {
     const room: Room | undefined = roomManager.getRoom(req.params.room_id);
 
@@ -30,7 +25,7 @@ export function roomExists(req: Request, res: Response, next: NextFunction): voi
 
 export function inRoom(req: Request, res: Response, next: NextFunction): void {
     const player: Client = req.session!.user;
-    if (!req.room?.hasPlayer(player.Id)) {
+    if (!req.room!.hasPlayer(player.Id)) {
         res.status(403).send("You're not part of this game");
         return;
     }

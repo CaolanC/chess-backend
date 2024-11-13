@@ -30,9 +30,8 @@ app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
     res.send(`you did it mr. ${req.session!.user.Name}`)
 })
 
-app.post(Routes.CREATE, (req, res) => { // Endpoint creates a session
-    const host = req.session!.user;
-    const newRoom = new Room(host);
+app.post(Routes.CREATE, (req: express.Request, res: express.Response) => { // Endpoint creates a session
+    const newRoom = new Room(req.user!);
 
     roomManager.addRoom(newRoom);
     res.redirect(`${Routes.ROOM}/${newRoom.ID}`);

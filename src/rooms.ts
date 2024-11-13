@@ -5,6 +5,7 @@ import { publicDir } from './constants';
 
 import express, { Request, Response, Router, NextFunction } from "express";
 import path from 'path';
+import { Square, SQUARES } from 'chess.js';
 
 declare module 'express-serve-static-core' {
     interface Request {
@@ -45,6 +46,22 @@ rooms.get('/', (req: Request, res: Response) => {
 rooms.get('/board', (req: Request, res: Response) => {
     const state = req.room!.boardState().map(a => a.map(p => p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : p))
     res.send(state);
+});
+
+rooms.get('/moves', (req: Request, res: Response) => {
+    const square = req.query.square as Square;
+    if (!square) {
+        res.status(400).send("Provide ?square query");
+        return;
+    }
+
+    if (!SQUARES.includes(square)) {
+        res.status(400).send(`Invalid square '${square}'`);
+        return;
+    }
+
+    const moves: Square[] = req.room!.getMoves(square);
+    res.send(moves);
 });
 
 export default rooms;

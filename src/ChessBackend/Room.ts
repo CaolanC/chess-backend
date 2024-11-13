@@ -55,7 +55,6 @@ export default class Room {
         }
     }
 
-    // TODO convene with the frontenders on whether or not this is a good format
     public boardState(): (Piece | null)[][] {
         return this.Board.board().reverse().map(a => a.map(e => e ? {type: e.type, color: e.color} : null));
     }

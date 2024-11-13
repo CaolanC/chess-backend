@@ -26,8 +26,8 @@ app.use(Routes.ROOM + Routes.ROOM_ID, rooms);
 
 // TODO make this POST probably
 app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
-    req.session!.user.Name = req.params.username;
-    res.send(`you did it mr. ${req.session!.user.Name}`)
+    req.user!.Name = req.params.username;
+    res.send(`you did it mr. ${req.user!.Name}`)
 })
 
 app.post(Routes.CREATE, (req: express.Request, res: express.Response) => { // Endpoint creates a session
@@ -40,7 +40,7 @@ app.post(Routes.CREATE, (req: express.Request, res: express.Response) => { // En
 // TODO this should be a POST
 app.get(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) => {
     const roomUrl = `${Routes.ROOM}/${req.room!.ID}`;
-    const player: Client = req.session!.user;
+    const player: Client = req.user!;
     // if you're already in this game, we can just send you there
     if (req.room!.hasPlayer(player.Id)) {
         res.redirect(roomUrl);

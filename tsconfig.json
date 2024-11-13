@@ -2,7 +2,6 @@
   "compilerOptions": {
       "outDir": "./dist",
       "rootDir": "./src",
-      "module": "commonjs",
 
     /* Visit https://aka.ms/tsconfig to read more about this file */
 

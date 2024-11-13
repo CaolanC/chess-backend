@@ -1,94 +1,62 @@
-import { ChessBackend } from './ChessBackend/NetworkManager';
-import { v4 as uuidv4 } from 'uuid';
+import Client from './ChessBackend/Client';
+import Room from './ChessBackend/Room';
+
+import { publicDir } from './constants';
+import enforceSession from './session';
+import Routes from './routes';
+import rooms, { roomExists, roomManager } from './rooms';
+
 import express from 'express';
 import path from 'path';
-const cookieParser = require('cookie-parser');
+import cookieSession from 'cookie-session';
+
 const app = express();
+app.use(cookieSession({
+    secret: "totally_secret_key_use_in_prod",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+}));
+app.use(enforceSession);
+app.use(express.json()); // read every POST as JSON
 
-require('dotenv').config();
+app.get(Routes.HOME, (req: express.Request, res: express.Response) => { // The home-page
+    res.sendFile(path.resolve(publicDir, 'index.html'));
+});
+app.use(express.static(publicDir));
 
-const MAX_PLAYERS = 2;
+app.use(Routes.ROOM + Routes.ROOM_ID, rooms);
 
-const projectRoot = path.resolve(__dirname);
+// TODO make this POST probably
+app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
+    req.user!.Name = req.params.username;
+    res.send(`you did it mr. ${req.user!.Name}`)
+})
 
-const manager = new ChessBackend.SessionManager();
+app.post(Routes.CREATE, (req: express.Request, res: express.Response) => { // Endpoint creates a session
+    const newRoom = new Room(req.user!);
 
-StartApp();
+    roomManager.addRoom(newRoom);
+    res.redirect(`${Routes.ROOM}/${newRoom.ID}`);
+});
 
-function StartApp(): void {
-    app.use(express.static(path.resolve(projectRoot, '..', 'public')));
-    app.use(cookieParser());
+// TODO this should be a POST
+app.get(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) => {
+    const roomUrl = `${Routes.ROOM}/${req.room!.ID}`;
+    const player: Client = req.user!;
+    // if you're already in this game, we can just send you there
+    if (req.room!.hasPlayer(player.Id)) {
+        res.redirect(roomUrl);
+        return;
+    }
 
-    app.get('/', (req, res) => { // The home-page
-        res.sendFile(path.resolve(projectRoot, '..', 'public', 'index.html'));
-    });
+    if (!req.room!.isJoinable()) {
+        res.status(403).send('Session is full.');
+        return;
+    }
 
-    app.post('/create-game', (req, res) => { // Endpoint creates a session
-        const new_session = new ChessBackend.Session();
-        const game_url = new_session.getID();
-        const player = new ChessBackend.Player();
-        new_session.addPlayer(player);
-        manager.addSession(new_session);
-        const player_id = player.getID();
-        res.cookie('clientInfo', { player_id, game_url }, { // Cookie contains the player_id and session_id, means that we can verify who this client is
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000
-        });
+    req.room!.addPlayer(player);
+    res.redirect(roomUrl);
+});
 
-        res.redirect(`/game/${game_url}`);
-    });
-
-    app.get('/tests/fen', (req: any, res: any) => {
-        try {
-            res.setHeader('Content-Type', 'text/plain');
-            res.send("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        } catch (error) {
-            res.status(500).send("Something went wrong.");
-        }
-    });
-            // Fixing the route handler by letting Express infer types for req and res
-    app.get('/game/:game_url', (req: any, res: any) => { // Joining a generated session
-        const { clientInfo } = req.cookies;
-        const url = req.params.game_url;
-
-        if (!(manager.urlExists(url))) {
-            return res.status(404).send('Session not found.');
-        }
-
-        const session = manager.getSession(url);
-
-        if (!session) {
-            return res.status(404).send('Session not found.');
-        }
-
-        if (clientInfo && clientInfo.player_id) { // If it's the host / someone who has already joined.
-            const playerExists = session.hasPlayer(clientInfo.player_id);
-            if (playerExists) {
-                return res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
-            }
-        }
-
-        if (!session.isJoinable()) {
-            return res.status(403).send('Session is full.');
-        }
-
-        const player = new ChessBackend.Player();
-        session.addPlayer(player);
-        const player_id = player.getID();
-        res.cookie('clientInfo', { player_id, url }, { // If the player is new we generated a new session ID for them (when initializing the player object
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000
-        });
-
-        return res.sendFile(path.join(projectRoot, '..', 'public', 'game.html'));
-        });
-
-    app.listen(5299, () => {
-        console.log('Server is running on port 5299');
-    });
-}
-
+app.listen(5299, () => {
+    console.log('Server is running on port 5299');
+});

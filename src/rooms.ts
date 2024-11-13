@@ -6,6 +6,13 @@ import { publicDir } from './constants';
 import express, { Request, Response, Router, NextFunction } from "express";
 import path from 'path';
 
+declare module 'express-serve-static-core' {
+    interface Request {
+        user?: Client;
+        room?: Room;
+    }
+}
+
 export const roomManager = new RoomManager();
 // all endpoints on the rooms route require you to be part of the room - todo bien
 const rooms: Router = express.Router({mergeParams: true});
@@ -36,6 +43,8 @@ rooms.get('/', (req: Request, res: Response) => {
 });
 
 rooms.get('/board', (req: Request, res: Response) => {
+    const state = req.room!.boardState().map(a => a.map(p => p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : p))
+    res.send(state);
 });
 
 export default rooms;

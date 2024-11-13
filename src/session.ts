@@ -1,6 +1,12 @@
 import Client from "./ChessBackend/Client";
 import { Request, Response, NextFunction } from "express";
 
+declare module 'express-serve-static-core' {
+    interface Request {
+        user?: Client;
+    }
+}
+
 const CURRENT_VERSION: number = 0;
 
 // middleware to maintain a valid user session

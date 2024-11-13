@@ -2,6 +2,7 @@ import Client from './ChessBackend/Client';
 import Room from './ChessBackend/Room';
 import RoomManager from './ChessBackend/RoomManager';
 
+import { publicDir } from './constants';
 import validateSession from './ChessBackend/Session';
 import Routes from './routes';
 

@@ -1,4 +1,4 @@
-import Client from "./Client";
+import Client from "./ChessBackend/Client";
 import { Request, Response, NextFunction } from "express";
 
 const CURRENT_VERSION: number = 0;

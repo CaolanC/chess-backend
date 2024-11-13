@@ -2,7 +2,7 @@ import Client from './ChessBackend/Client';
 import Room from './ChessBackend/Room';
 
 import { publicDir } from './constants';
-import validateSession from './session';
+import enforceSession from './session';
 import Routes from './routes';
 import rooms, { roomExists, roomManager } from './rooms';
 
@@ -15,7 +15,7 @@ app.use(cookieSession({
     secret: "totally_secret_key_use_in_prod",
     maxAge: 7 * 24 * 60 * 60 * 1000,
 }));
-app.use(validateSession);
+app.use(enforceSession);
 
 app.get(Routes.HOME, (req: express.Request, res: express.Response) => { // The home-page
     res.sendFile(path.resolve(publicDir, 'index.html'));

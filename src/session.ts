@@ -10,7 +10,7 @@ declare module 'express' {
 }
 
 // middleware to maintain a valid user session
-export default function validateSession(req: Request, res: Response, next: NextFunction): void {
+export default function enforceSession(req: Request, res: Response, next: NextFunction): void {
     if (!req.session) {
         res.status(500).send("No session?");
         return;

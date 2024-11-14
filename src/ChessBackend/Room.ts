@@ -7,6 +7,14 @@ type Chessboard = Chess;
 
 const PLAYER_MESSAGE = "Player not in game";
 
+interface GameStatus {
+    turn: {
+        color: Color;
+        check: boolean;
+    };
+    winner?: Color | '-';
+}
+
 export default class Room {
     public readonly ID: string = uuidv4();
     private readonly Players: [Client, Client?];
@@ -70,5 +78,22 @@ export default class Room {
 
     public boardState(): (Piece | null)[][] {
         return this.Board.board().reverse().map(a => a.map(e => e ? {type: e.type, color: e.color} : null));
+    }
+
+    public status(): GameStatus {
+        let result: GameStatus = {
+            turn: {
+                color: this.Board.turn(),
+                check: this.Board.inCheck()
+            },
+        };
+        if (this.Board.isGameOver()) {
+            if (this.Board.isCheckmate()) {
+                result.winner = (this.Board.turn() === 'w') ? 'b' : 'w';
+            } else {
+                result.winner = '-';
+            }
+        }
+        return result;
     }
 }

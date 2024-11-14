@@ -71,7 +71,9 @@ rooms.get("/info", (req: Request, res: Response) => {
     res.send(output);
 });
 
-// TODO add /status that tells you whose move it is and whether the game has ended
+rooms.get("/status", (req: Request, res: Response) => {
+    res.send(req.room!.status());
+});
 
 rooms.get('/board', (req: Request, res: Response) => {
     const state = req.room!.boardState().map(a => a.map(p => p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : p))

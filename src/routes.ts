@@ -1,6 +1,6 @@
 const enum Routes {
     HOME = '/',
-    REGISTER = '/register/:username', // HACK this has to be hardcoded to pick a specific argument
+    REGISTER = '/register',
 
     CREATE = '/create-game', // TODO update this endpoint's name to match a new scheme
     JOIN = '/join/:room_id',

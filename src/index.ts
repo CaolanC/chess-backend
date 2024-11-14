@@ -25,10 +25,25 @@ app.use(express.static(publicDir));
 
 app.use(Routes.ROOM + Routes.ROOM_ID, rooms);
 
-// TODO make this POST probably
-app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
-    req.user!.Name = req.params.username;
-    res.send(`you did it mr. ${req.user!.Name}`)
+app.post(Routes.REGISTER, (req: express.Request, res: express.Response) => {
+    if (req.body.username === undefined) {
+        res.status(400).send("Missing username field");
+        return;
+    }
+
+    if (typeof req.body.username !== 'string') {
+        res.status(400).send("username must be string");
+        return;
+    }
+
+    res.status(201);
+    if (req.body.username) {
+        req.user!.Name = req.body.username;
+        res.send("Username set");
+    } else {
+        req.user!.Name = undefined;
+        res.send("Username unset");
+    }
 })
 
 app.post(Routes.CREATE, (req: express.Request, res: express.Response) => { // Endpoint creates a session

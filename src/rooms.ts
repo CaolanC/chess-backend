@@ -63,6 +63,16 @@ rooms.get('/', (req: Request, res: Response) => {
 rooms.use(gameStarted); // all handlers past this point require the game to have started
 rooms.post("*", usersTurn); // all POSTs require it to be the user's turn
 
+rooms.get("/info", (req: Request, res: Response) => {
+    const output = {
+        color: req.room!.color(req.user!),
+        opponent: req.room!.opponent(req.user!).Name || null
+    };
+    res.send(output);
+});
+
+// TODO add /status that tells you whose move it is and whether the game has ended
+
 rooms.get('/board', (req: Request, res: Response) => {
     const state = req.room!.boardState().map(a => a.map(p => p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : p))
     res.send(state);

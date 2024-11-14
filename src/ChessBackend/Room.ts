@@ -1,9 +1,11 @@
 import Client from './Client';
-import { Chess, Piece, Square, Move } from 'chess.js';
+import { Chess, Piece, Square, Move, Color } from 'chess.js';
 
 import { v4 as uuidv4 } from 'uuid';
 
 type Chessboard = Chess;
+
+const PLAYER_MESSAGE = "Player not in game";
 
 export default class Room {
     public readonly ID: string = uuidv4();
@@ -36,6 +38,18 @@ export default class Room {
 
     public black(): Client {
         return this.Players[1]!;
+    }
+
+    // return a player's color
+    public color(player: Client): Color {
+        if (!this.hasPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
+        return player.is(this.white()) ? "w" : "b";
+    }
+
+    // return the opposing player
+    public opponent(player: Client): Client {
+        if (!this.hasPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
+        return player.is(this.white()) ? this.black() : this.white();
     }
 
     public toMove(): Client {

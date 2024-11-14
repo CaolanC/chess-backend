@@ -63,11 +63,15 @@ rooms.get('/', (req: Request, res: Response) => {
 rooms.use(gameStarted); // all handlers past this point require the game to have started
 rooms.post("*", usersTurn); // all POSTs require it to be the user's turn
 
+// TODO add an ID endpoint that tells you the opponent's nickname and their color (and yours)
+// TODO add /status that tells you whose move it is and whether the game has ended
+
 rooms.get('/board', (req: Request, res: Response) => {
     const state = req.room!.boardState().map(a => a.map(p => p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : p))
     res.send(state);
 });
 
+// TODO turn into a 2D array of bools
 rooms.get('/moves', (req: Request, res: Response) => {
     const square = req.query.square as Square;
     if (!square) {

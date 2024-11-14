@@ -93,7 +93,13 @@ rooms.get('/moves', (req: Request, res: Response) => {
     }
 
     const moves: Square[] = req.room!.getMoves(square);
-    res.send(moves);
+    const array: boolean[][] = Array.from({ length: 8}, () => Array(8).fill(false));
+    for (const coord of moves) {
+        const y = coord.charCodeAt(0) - 'a'.charCodeAt(0);
+        const x = Number.parseInt(coord[1]) - 1;
+        array[x][y] = true;
+    }
+    res.send(array);
 });
 
 rooms.post('/move', (req: Request, res: Response) => {

@@ -39,9 +39,19 @@ export function inRoom(req: Request, res: Response, next: NextFunction): void {
     next();
 }
 
+export function gameStarted(req: Request, res: Response, next: NextFunction): void {
+    if (!req.room!.started()) {
+        res.status(400).send("Game has not started");
+        return;
+    }
+    next();
+}
+
 rooms.get('/', (req: Request, res: Response) => {
     res.sendFile(path.join(publicDir, 'game.html'));
 });
+
+rooms.use(gameStarted); // all handlers past this point require the game to have started
 
 rooms.get('/board', (req: Request, res: Response) => {
     const state = req.room!.boardState().map(a => a.map(p => p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : p))

@@ -9,6 +9,10 @@ export default class Client {
         this.Name = name;
     }
 
+    public static named(name: string): Client {
+        return new Client(uuidv4(), name);
+    }
+
     public is(other: Client): boolean {
         return this.Id == other.Id;
     }

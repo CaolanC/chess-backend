@@ -15,7 +15,7 @@ export default class Room {
     }
 
     public addPlayer(player: Client): boolean {
-        if (!(this.isJoinable())) return false;
+        if (this.started()) return false;
         this.Players[1] = player;
         return true;
     }
@@ -26,8 +26,8 @@ export default class Room {
         });
     }
 
-    public isJoinable(): boolean {
-        return this.black() === undefined; // black player isn't here yet
+    public started(): boolean {
+        return this.black() !== undefined; // black player isn't here yet
     }
 
     public white(): Client {

@@ -18,7 +18,8 @@ interface GameStatus {
 export default class Room {
     public readonly ID: string = uuidv4();
     private readonly Players: [Client, Client?];
-    private readonly Board: Chessboard = new Chess();
+    private readonly Board: Chessboard = new Chess(); // TODO maybe not construct the chessboard until the game's started
+    // TODO put in a timestamp at which we can kill the game
 
     constructor(host: Client) {
         this.Players = [host];

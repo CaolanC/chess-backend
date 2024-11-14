@@ -39,6 +39,7 @@ export function inRoom(req: Request, res: Response, next: NextFunction): void {
     next();
 }
 
+// TODO add a gameRunning handler to reject POSTS after the game is done
 export function gameStarted(req: Request, res: Response, next: NextFunction): void {
     if (!req.room!.started()) {
         res.status(400).send("Game has not started");

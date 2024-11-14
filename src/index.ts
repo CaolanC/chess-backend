@@ -29,7 +29,12 @@ app.use(Routes.ROOM + Routes.ROOM_ID, rooms);
 app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
     req.user!.Name = req.params.username;
     res.send(`you did it mr. ${req.user!.Name}`)
-})
+});
+
+app.get(Routes.NAME, (req: express.Request, res: express.Response) => {
+    const output = { username: req.user!.Name || null };
+    res.send(output);
+});
 
 app.post(Routes.CREATE, (req: express.Request, res: express.Response) => { // Endpoint creates a session
     const newRoom = new Room(req.user!);

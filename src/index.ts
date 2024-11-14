@@ -53,23 +53,22 @@ app.post(Routes.CREATE, (req: express.Request, res: express.Response) => { // En
     res.redirect(`${Routes.ROOM}/${newRoom.ID}`);
 });
 
-// TODO this should be a POST
-app.get(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) => {
+app.post(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) => {
     const roomUrl = `${Routes.ROOM}/${req.room!.ID}`;
     const player: Client = req.user!;
     // if you're already in this game, we can just send you there
     if (req.room!.hasPlayer(player.Id)) {
-        res.redirect(roomUrl);
+        res.redirect(303, roomUrl);
         return;
     }
 
     if (req.room!.started()) {
-        res.status(403).send('Room is full.');
+        res.status(403).send('Room is full');
         return;
     }
 
     req.room!.addPlayer(player);
-    res.redirect(roomUrl);
+    res.redirect(303, roomUrl);
 });
 
 app.listen(5299, () => {

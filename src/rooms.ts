@@ -47,11 +47,21 @@ export function gameStarted(req: Request, res: Response, next: NextFunction): vo
     next();
 }
 
+export function usersTurn(req: Request, res: Response, next: NextFunction): void {
+    const player = req.room!.toMove();
+    if (!player.is(req.user!)) {
+        res.status(400).send("Not your turn");
+        return;
+    }
+    next();
+}
+
 rooms.get('/', (req: Request, res: Response) => {
     res.sendFile(path.join(publicDir, 'game.html'));
 });
 
 rooms.use(gameStarted); // all handlers past this point require the game to have started
+rooms.post("*", usersTurn); // all POSTs require it to be the user's turn
 
 rooms.get('/board', (req: Request, res: Response) => {
     const state = req.room!.boardState().map(a => a.map(p => p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : p))

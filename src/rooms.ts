@@ -63,15 +63,23 @@ rooms.get('/', (req: Request, res: Response) => {
 rooms.use(gameStarted); // all handlers past this point require the game to have started
 rooms.post("*", usersTurn); // all POSTs require it to be the user's turn
 
-// TODO add an ID endpoint that tells you the opponent's nickname and their color (and yours)
-// TODO add /status that tells you whose move it is and whether the game has ended
+rooms.get("/info", (req: Request, res: Response) => {
+    const output = {
+        color: req.room!.color(req.user!),
+        opponent: req.room!.opponent(req.user!).Name || null
+    };
+    res.send(output);
+});
+
+rooms.get("/status", (req: Request, res: Response) => {
+    res.send(req.room!.status());
+});
 
 rooms.get('/board', (req: Request, res: Response) => {
     const state = req.room!.boardState().map(a => a.map(p => p ? (p.color === 'w' ? p.type.toUpperCase() : p.type) : p))
     res.send(state);
 });
 
-// TODO turn into a 2D array of bools
 rooms.get('/moves', (req: Request, res: Response) => {
     const square = req.query.square as Square;
     if (!square) {
@@ -85,7 +93,13 @@ rooms.get('/moves', (req: Request, res: Response) => {
     }
 
     const moves: Square[] = req.room!.getMoves(square);
-    res.send(moves);
+    const array: boolean[][] = Array.from({ length: 8}, () => Array(8).fill(false));
+    for (const coord of moves) {
+        const y = coord.charCodeAt(0) - 'a'.charCodeAt(0);
+        const x = Number.parseInt(coord[1]) - 1;
+        array[x][y] = true;
+    }
+    res.send(array);
 });
 
 rooms.post('/move', (req: Request, res: Response) => {

@@ -1,9 +1,19 @@
 import Client from './Client';
-import { Chess, Piece, Square, Move } from 'chess.js';
+import { Chess, Piece, Square, Move, Color } from 'chess.js';
 
 import { v4 as uuidv4 } from 'uuid';
 
 type Chessboard = Chess;
+
+const PLAYER_MESSAGE = "Player not in game";
+
+interface GameStatus {
+    turn: {
+        color: Color;
+        check: boolean;
+    };
+    winner?: Color | '-';
+}
 
 export default class Room {
     public readonly ID: string = uuidv4();
@@ -38,6 +48,18 @@ export default class Room {
         return this.Players[1]!;
     }
 
+    // return a player's color
+    public color(player: Client): Color {
+        if (!this.hasPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
+        return player.is(this.white()) ? "w" : "b";
+    }
+
+    // return the opposing player
+    public opponent(player: Client): Client {
+        if (!this.hasPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
+        return player.is(this.white()) ? this.black() : this.white();
+    }
+
     public toMove(): Client {
         return (this.Board.turn() === 'w') ? this.white() : this.black()!;
     }
@@ -56,5 +78,22 @@ export default class Room {
 
     public boardState(): (Piece | null)[][] {
         return this.Board.board().reverse().map(a => a.map(e => e ? {type: e.type, color: e.color} : null));
+    }
+
+    public status(): GameStatus {
+        let result: GameStatus = {
+            turn: {
+                color: this.Board.turn(),
+                check: this.Board.inCheck()
+            },
+        };
+        if (this.Board.isGameOver()) {
+            if (this.Board.isCheckmate()) {
+                result.winner = (this.Board.turn() === 'w') ? 'b' : 'w';
+            } else {
+                result.winner = '-';
+            }
+        }
+        return result;
     }
 }

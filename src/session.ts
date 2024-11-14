@@ -23,6 +23,6 @@ export default function enforceSession(req: Request, res: Response, next: NextFu
     } else {
         req.session.user = Client.copy(req.session.user);
     }
-    req.user = req.session.user;
+    req.user = Client.copy(req.session.user);
     next();
 }

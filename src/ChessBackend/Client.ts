@@ -13,6 +13,11 @@ export default class Client {
         return new Client(uuidv4(), name);
     }
 
+    // create a clone of a client (or client-like JSON object)
+    public static copy(other: Client): Client {
+        return new Client(other.Id, other.Name);
+    }
+
     public is(other: Client): boolean {
         return this.Id == other.Id;
     }

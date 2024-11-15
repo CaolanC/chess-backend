@@ -59,7 +59,7 @@ app.get(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) =
         return;
     }
 
-    req.room!.addPlayer(player);
+    req.room!.start(player);
     res.redirect(roomUrl);
 });
 

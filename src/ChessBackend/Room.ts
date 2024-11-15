@@ -19,7 +19,7 @@ interface GameStatus {
 export default class Room {
     public readonly ID: string = uuidv4();
     private readonly Players: [Client, Client?];
-    private readonly Board: Chessboard = new Chess(); // TODO maybe not construct the chessboard until the game's started
+    private Board?: Chessboard; // construction is deferred until the game starts
     private readonly Expiration: Date = new Date(Date.now() + LIFETIME);
 
     constructor(host: Client) {
@@ -30,9 +30,10 @@ export default class Room {
         return this.Expiration;
     }
 
-    public addPlayer(player: Client): boolean {
+    public start(player: Client): boolean {
         if (this.started()) return false;
         this.Players[1] = player;
+        this.Board = new Chess();
         return true;
     }
 
@@ -43,7 +44,7 @@ export default class Room {
     }
 
     public started(): boolean {
-        return this.black() !== undefined; // black player isn't here yet
+        return this.Board !== undefined;
     }
 
     public finished(): boolean {
@@ -71,35 +72,35 @@ export default class Room {
     }
 
     public toMove(): Client {
-        return (this.Board.turn() === 'w') ? this.white() : this.black()!;
+        return (this.Board!.turn() === 'w') ? this.white() : this.black()!;
     }
 
     public getMoves(coord: Square): Square[] {
-        return this.Board.moves({square: coord, verbose: true}).map(e => e.to);
+        return this.Board!.moves({square: coord, verbose: true}).map(e => e.to);
     }
 
     public move(move: Move): Move | null {
         try {
-            return this.Board.move(move);
+            return this.Board!.move(move);
         } catch (e: unknown) {
             return null;
         }
     }
 
     public boardState(): (Piece | null)[][] {
-        return this.Board.board().reverse().map(a => a.map(e => e ? {type: e.type, color: e.color} : null));
+        return this.Board!.board().reverse().map(a => a.map(e => e ? {type: e.type, color: e.color} : null));
     }
 
     public status(): GameStatus {
         let result: GameStatus = {
             turn: {
-                color: this.Board.turn(),
-                check: this.Board.inCheck()
+                color: this.Board!.turn(),
+                check: this.Board!.inCheck()
             },
         };
-        if (this.Board.isGameOver()) {
-            if (this.Board.isCheckmate()) {
-                result.winner = (this.Board.turn() === 'w') ? 'b' : 'w';
+        if (this.Board!.isGameOver()) {
+            if (this.Board!.isCheckmate()) {
+                result.winner = (this.Board!.turn() === 'w') ? 'b' : 'w';
             } else {
                 result.winner = '-';
             }

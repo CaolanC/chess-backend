@@ -78,7 +78,7 @@ rooms.get('/', (req: Request, res: Response) => {
 });
 
 rooms.get('/id', (req: Request, res: Response) => {
-    res.send({id: req.room!.ID});
+    res.send({id: req.room!.ID, started: req.room!.started()});
 });
 
 rooms.get('/events', (req: Request, res: Response) => {

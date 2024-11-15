@@ -68,6 +68,10 @@ rooms.get('/', (req: Request, res: Response) => {
     res.sendFile(path.join(publicDir, 'game.html'));
 });
 
+rooms.get('/id', (req: Request, res: Response) => {
+    res.send({id: req.room!.ID});
+});
+
 rooms.use(gameStarted); // all handlers past this point require the game to have started
 rooms.post("*", gameNotFinished, usersTurn); // all POSTs require it to be the user's turn
 

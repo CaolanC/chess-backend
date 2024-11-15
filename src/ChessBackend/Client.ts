@@ -1,11 +1,8 @@
-import Messenger from './Messenger';
-
 import { v4 as uuidv4 } from 'uuid';
 
 export default class Client {
     public readonly Id: string;
     public Name?: string;
-    private Stream?: Messenger;
 
     constructor(id: string = uuidv4(), name?: string) {
         this.Id = id;
@@ -23,18 +20,5 @@ export default class Client {
 
     public is(other: Client): boolean {
         return this.Id == other.Id;
-    }
-
-    public setStream(stream: Messenger): void {
-        this.Stream = stream;
-    }
-
-    public clearStream(): void {
-        this.Stream = undefined;
-    }
-
-    public poke(): boolean {
-        if (!this.Stream?.valid()) return false;
-        return this.Stream.send("");
     }
 }

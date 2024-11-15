@@ -136,7 +136,7 @@ rooms.post('/move', (req: Request, res: Response) => {
     const status: Move | null = req.room!.move(req.body as Move);
     if (status) {
         res.json(status);
-        // TODO ping the other player
+        req.opponent?.poke(); // TODO more error handling here
     } else {
         res.status(400).send("Invalid move");
     }

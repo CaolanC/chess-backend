@@ -60,8 +60,8 @@ app.get(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) =
     }
 
     req.room!.start(player);
+    req.room!.white().poke(); // TODO error handle
     res.redirect(roomUrl);
-    // TODO send the other player a ping
 });
 
 app.listen(5299, () => {

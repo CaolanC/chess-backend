@@ -13,6 +13,8 @@ declare module 'express-serve-static-core' {
     interface Request {
         user?: Client;
         room?: Room;
+        player?: Player;
+        opponent?: Player;
     }
 }
 
@@ -32,19 +34,24 @@ export function roomExists(req: Request, res: Response, next: NextFunction): voi
     next();
 }
 
+// populates request with player
 export function inRoom(req: Request, res: Response, next: NextFunction): void {
-    if (!req.room!.getPlayer(req.user!.Id)) {
+    const player: Player | undefined = req.room!.getPlayer(req.user!.Id);
+    if (!player) {
         res.status(403).send("You're not part of this game");
         return;
     }
+    req.player = player;
     next();
 }
 
+// populates request with opponent
 export function gameStarted(req: Request, res: Response, next: NextFunction): void {
     if (!req.room!.started()) {
         res.status(400).send("Game has not started");
         return;
     }
+    req.opponent = req.room!.opponent(req.user!);
     next();
 }
 

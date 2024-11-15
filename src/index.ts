@@ -13,7 +13,7 @@ import cookieSession from 'cookie-session';
 
 const app = express();
 app.use(cookieSession({
-    secret: "totally_secret_key_use_in_prod",
+    secret: "totally_secret_key_use_in_prod", // TODO something about this?? probably env var
     maxAge: 7 * 24 * 60 * 60 * 1000,
 }));
 app.use(enforceSession);

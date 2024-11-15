@@ -65,8 +65,8 @@ export function gameNotFinished(req: Request, res: Response, next: NextFunction)
 }
 
 export function usersTurn(req: Request, res: Response, next: NextFunction): void {
-    const player = req.room!.toMove();
-    if (!player.Client.is(req.user!)) {
+    // this checks reference equality, but these should be the same object
+    if (req.player! !== req.room!.toMove()) {
         res.status(400).send("Not your turn");
         return;
     }
@@ -82,17 +82,16 @@ rooms.get('/id', (req: Request, res: Response) => {
 });
 
 rooms.get('/events', (req: Request, res: Response) => {
-    const player: Player = req.room!.getPlayer(req.user!.Id)!;
-    player.setStream(new Messenger(res));
+    req.player!.setStream(new Messenger(res));
 });
 
 rooms.use(gameStarted); // all handlers past this point require the game to have started
-rooms.post("*", gameNotFinished, usersTurn); // all POSTs require it to be the user's turn
+rooms.post("*", gameNotFinished, usersTurn); // all POSTs require it to be the user's turn (and for the game to be going)
 
 rooms.get("/info", (req: Request, res: Response) => {
     const output = {
-        color: req.room!.getPlayer(req.user!.Id)!.Color,
-        opponent: req.room!.opponent(req.user!).Client.Name || null
+        color: req.player!.Color,
+        opponent: req.opponent!.Client.Name || null
     };
     res.send(output);
 });

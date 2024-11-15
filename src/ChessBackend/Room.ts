@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 type Chessboard = Chess;
 
 const PLAYER_MESSAGE = "Player not in game";
+const LIFETIME = 1 * (60 * 60 * 1000); // 1 hour
 
 interface GameStatus {
     turn: {
@@ -19,10 +20,14 @@ export default class Room {
     public readonly ID: string = uuidv4();
     private readonly Players: [Client, Client?];
     private readonly Board: Chessboard = new Chess(); // TODO maybe not construct the chessboard until the game's started
-    // TODO put in a timestamp at which we can kill the game
+    private readonly Expiration: Date = new Date(Date.now() + LIFETIME);
 
     constructor(host: Client) {
         this.Players = [host];
+    }
+
+    public expiration(): Date {
+        return this.Expiration;
     }
 
     public addPlayer(player: Client): boolean {

@@ -1,13 +1,7 @@
 import Room from "./Room";
 
 export default class RoomManager {
-    public Rooms: Map<string, Room>; // { [key: string]: Session };
-    // private SecretKey: string; // TODO probably remove
-
-    constructor(secret_key: string = "lol") {
-        this.Rooms = new Map<string, Room>();
-        // this.SecretKey = secret_key;
-    }
+    private Rooms: Map<string, Room> = new Map<string, Room>();
 
     public addRoom(new_session: Room): boolean {
         this.Rooms.set(new_session.ID, new_session);

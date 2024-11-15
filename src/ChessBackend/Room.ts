@@ -41,6 +41,10 @@ export default class Room {
         return this.black() !== undefined; // black player isn't here yet
     }
 
+    public finished(): boolean {
+        return this.Board!.isGameOver();
+    }
+
     public white(): Client {
         return this.Players[0];
     }

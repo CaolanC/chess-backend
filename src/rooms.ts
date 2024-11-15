@@ -1,6 +1,7 @@
 import Room from './ChessBackend/Room';
 import RoomManager from './ChessBackend/RoomManager';
 import Client from './ChessBackend/Client';
+import Messenger from './ChessBackend/Messenger';
 import { publicDir } from './constants';
 
 import express, { Request, Response, Router, NextFunction } from "express";
@@ -70,6 +71,11 @@ rooms.get('/', (req: Request, res: Response) => {
 
 rooms.get('/id', (req: Request, res: Response) => {
     res.send({id: req.room!.ID});
+});
+
+rooms.get('/events', (req: Request, res: Response) => {
+    const player: Client = req.room!.getPlayer(req.user!.Id)!;
+    player.setStream(new Messenger(res));
 });
 
 rooms.use(gameStarted); // all handlers past this point require the game to have started

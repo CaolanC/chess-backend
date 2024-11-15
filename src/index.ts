@@ -1,10 +1,11 @@
 import Client from './ChessBackend/Client';
 import Room from './ChessBackend/Room';
+import RoomManager from './ChessBackend/RoomManager';
 
 import { publicDir } from './constants';
 import enforceSession from './session';
 import Routes from './routes';
-import rooms, { roomExists, roomManager } from './rooms';
+import rooms, { roomExists } from './rooms';
 
 import express from 'express';
 import path from 'path';
@@ -39,7 +40,7 @@ app.get(Routes.NAME, (req: express.Request, res: express.Response) => {
 app.post(Routes.CREATE, (req: express.Request, res: express.Response) => { // Endpoint creates a session
     const newRoom = new Room(req.user!);
 
-    roomManager.addRoom(newRoom);
+    RoomManager.addRoom(newRoom);
     res.redirect(`${Routes.ROOM}/${newRoom.ID}`);
 });
 

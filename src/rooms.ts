@@ -14,7 +14,6 @@ declare module 'express-serve-static-core' {
     }
 }
 
-export const roomManager = new RoomManager();
 // all endpoints on the rooms route require you to be part of the room - todo bien
 const rooms: Router = express.Router({mergeParams: true});
 rooms.use(roomExists);
@@ -22,7 +21,7 @@ rooms.use(inRoom);
 
 // adds req.room
 export function roomExists(req: Request, res: Response, next: NextFunction): void {
-    const room: Room | undefined = roomManager.getRoom(req.params.room_id);
+    const room: Room | undefined = RoomManager.getRoom(req.params.room_id);
     if (!room) {
         res.status(404).send('Room not found');
         return;

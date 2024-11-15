@@ -1,3 +1,4 @@
 [submodule "front"]
 	path = front
 	url = git@github.com:CaolanC/chess-frontend.git
+	branch = master

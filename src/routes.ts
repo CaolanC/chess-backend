@@ -1,6 +1,7 @@
 const enum Routes {
     HOME = '/',
     REGISTER = '/register',
+    NAME = '/name',
 
     CREATE = '/create-game', // TODO update this endpoint's name to match a new scheme
     JOIN = '/join/:room_id',

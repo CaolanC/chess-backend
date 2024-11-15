@@ -17,7 +17,7 @@ interface GameStatus {
 }
 
 export default class Room {
-    public readonly ID: string = uuidv4();
+    public readonly ID: string = uuidv4().slice(0, 8);
     private readonly Players: [Client, Client?];
     private Board?: Chessboard; // construction is deferred until the game starts
     private readonly Expiration: Date = new Date(Date.now() + LIFETIME);

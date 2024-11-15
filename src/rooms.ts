@@ -38,10 +38,18 @@ export function inRoom(req: Request, res: Response, next: NextFunction): void {
     next();
 }
 
-// TODO add a gameRunning handler to reject POSTS after the game is done
 export function gameStarted(req: Request, res: Response, next: NextFunction): void {
     if (!req.room!.started()) {
         res.status(400).send("Game has not started");
+        return;
+    }
+    next();
+}
+
+// reject requests after the game is done
+export function gameNotFinished(req: Request, res: Response, next: NextFunction): void {
+    if (req.room!.finished()) {
+        res.status(400).send("Game has finished");
         return;
     }
     next();
@@ -61,7 +69,7 @@ rooms.get('/', (req: Request, res: Response) => {
 });
 
 rooms.use(gameStarted); // all handlers past this point require the game to have started
-rooms.post("*", usersTurn); // all POSTs require it to be the user's turn
+rooms.post("*", gameNotFinished, usersTurn); // all POSTs require it to be the user's turn
 
 rooms.get("/info", (req: Request, res: Response) => {
     const output = {

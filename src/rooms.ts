@@ -1,7 +1,9 @@
 import Room from './ChessBackend/Room';
 import RoomManager from './ChessBackend/RoomManager';
 import Client from './ChessBackend/Client';
-import { publicDir } from './constants';
+import Player from './ChessBackend/Player';
+import Messenger from './ChessBackend/Messenger';
+import { PUBLIC_DIR } from './constants';
 
 import express, { Request, Response, Router, NextFunction } from "express";
 import path from 'path';
@@ -11,6 +13,8 @@ declare module 'express-serve-static-core' {
     interface Request {
         user?: Client;
         room?: Room;
+        player?: Player;
+        opponent?: Player;
     }
 }
 
@@ -30,19 +34,24 @@ export function roomExists(req: Request, res: Response, next: NextFunction): voi
     next();
 }
 
+// populates request with player
 export function inRoom(req: Request, res: Response, next: NextFunction): void {
-    if (!req.room!.hasPlayer(req.user!.Id)) {
+    const player: Player | undefined = req.room!.getPlayer(req.user!.Id);
+    if (!player) {
         res.status(403).send("You're not part of this game");
         return;
     }
+    req.player = player;
     next();
 }
 
+// populates request with opponent
 export function gameStarted(req: Request, res: Response, next: NextFunction): void {
     if (!req.room!.started()) {
         res.status(400).send("Game has not started");
         return;
     }
+    req.opponent = req.room!.opponent(req.user!);
     next();
 }
 
@@ -56,8 +65,8 @@ export function gameNotFinished(req: Request, res: Response, next: NextFunction)
 }
 
 export function usersTurn(req: Request, res: Response, next: NextFunction): void {
-    const player = req.room!.toMove();
-    if (!player.is(req.user!)) {
+    // this checks reference equality, but these should be the same object
+    if (req.player! !== req.room!.toMove()) {
         res.status(400).send("Not your turn");
         return;
     }
@@ -65,20 +74,24 @@ export function usersTurn(req: Request, res: Response, next: NextFunction): void
 }
 
 rooms.get('/', (req: Request, res: Response) => {
-    res.sendFile(path.join(publicDir, 'game.html'));
+    res.sendFile(path.join(PUBLIC_DIR, 'game.html'));
 });
 
 rooms.get('/id', (req: Request, res: Response) => {
-    res.send({id: req.room!.ID});
+    res.send({id: req.room!.ID, started: req.room!.started()});
+});
+
+rooms.get('/events', (req: Request, res: Response) => {
+    req.player!.setStream(new Messenger(res));
 });
 
 rooms.use(gameStarted); // all handlers past this point require the game to have started
-rooms.post("*", gameNotFinished, usersTurn); // all POSTs require it to be the user's turn
+rooms.post("*", gameNotFinished, usersTurn); // all POSTs require it to be the user's turn (and for the game to be going)
 
 rooms.get("/info", (req: Request, res: Response) => {
     const output = {
-        color: req.room!.color(req.user!),
-        opponent: req.room!.opponent(req.user!).Name || null
+        color: req.player!.Color,
+        opponent: req.opponent!.Client.Name || null
     };
     res.send(output);
 });
@@ -123,6 +136,7 @@ rooms.post('/move', (req: Request, res: Response) => {
     const status: Move | null = req.room!.move(req.body as Move);
     if (status) {
         res.json(status);
+        req.opponent?.poke(); // TODO more error handling here
     } else {
         res.status(400).send("Invalid move");
     }

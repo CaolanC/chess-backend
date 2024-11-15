@@ -3,7 +3,7 @@ import RoomManager from './ChessBackend/RoomManager';
 import Client from './ChessBackend/Client';
 import Player from './ChessBackend/Player';
 import Messenger from './ChessBackend/Messenger';
-import { publicDir } from './constants';
+import { PUBLIC_DIR } from './constants';
 
 import express, { Request, Response, Router, NextFunction } from "express";
 import path from 'path';
@@ -74,7 +74,7 @@ export function usersTurn(req: Request, res: Response, next: NextFunction): void
 }
 
 rooms.get('/', (req: Request, res: Response) => {
-    res.sendFile(path.join(publicDir, 'game.html'));
+    res.sendFile(path.join(PUBLIC_DIR, 'game.html'));
 });
 
 rooms.get('/id', (req: Request, res: Response) => {

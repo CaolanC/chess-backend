@@ -2,7 +2,7 @@ import Client from './ChessBackend/Client';
 import Room from './ChessBackend/Room';
 import RoomManager from './ChessBackend/RoomManager';
 
-import { publicDir } from './constants';
+import { PUBLIC_DIR, SECRET_KEY } from './constants';
 import enforceSession from './session';
 import Routes from './routes';
 import rooms, { roomExists } from './rooms';
@@ -13,16 +13,16 @@ import cookieSession from 'cookie-session';
 
 const app = express();
 app.use(cookieSession({
-    secret: "totally_secret_key_use_in_prod", // TODO something about this?? probably env var
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    secret: SECRET_KEY,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // session lasts a week
 }));
 app.use(enforceSession);
 app.use(express.json()); // read every POST as JSON
 
 app.get(Routes.HOME, (req: express.Request, res: express.Response) => { // The home-page
-    res.sendFile(path.resolve(publicDir, 'index.html'));
+    res.sendFile(path.resolve(PUBLIC_DIR, 'index.html'));
 });
-app.use(express.static(publicDir));
+app.use(express.static(PUBLIC_DIR));
 
 app.use(Routes.ROOM + Routes.ROOM_ID, rooms);
 

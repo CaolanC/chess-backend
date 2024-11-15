@@ -1,4 +1,5 @@
 import Client from './Client';
+import Player from './Player';
 import { Chess, Piece, Square, Move, Color } from 'chess.js';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -18,12 +19,12 @@ interface GameStatus {
 
 export default class Room {
     public readonly ID: string = uuidv4().slice(0, 8);
-    private readonly Players: [Client, Client?];
+    private readonly Players: [Player, Player?]
     private Board?: Chessboard; // construction is deferred until the game starts
     private readonly Expiration: Date = new Date(Date.now() + LIFETIME);
 
     constructor(host: Client) {
-        this.Players = [host];
+        this.Players = [new Player(host, 'w')];
     }
 
     public expiration(): Date {
@@ -32,13 +33,13 @@ export default class Room {
 
     public start(player: Client): boolean {
         if (this.started()) return false;
-        this.Players[1] = player;
+        this.Players[1] = new Player(player, 'b');
         this.Board = new Chess();
         return true;
     }
 
-    public getPlayer(id: string): Client | undefined {
-        return this.Players.find(player => player?.Id === id);
+    public getPlayer(id: string): Player | undefined {
+        return this.Players.find(player => player?.Client.Id === id);
     }
 
     public started(): boolean {
@@ -49,28 +50,23 @@ export default class Room {
         return this.Board!.isGameOver();
     }
 
-    public white(): Client {
+    public white(): Player {
         return this.Players[0];
     }
 
-    public black(): Client {
+    public black(): Player {
         return this.Players[1]!;
     }
 
-    // return a player's color
-    public color(player: Client): Color {
-        if (!this.getPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
-        return player.is(this.white()) ? "w" : "b";
-    }
-
     // return the opposing player
-    public opponent(player: Client): Client {
+    public opponent(player: Client): Player {
         if (!this.getPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
-        return player.is(this.white()) ? this.black() : this.white();
+        return this.Players.find(p => !player.is(p!.Client))!;
     }
 
-    public toMove(): Client {
-        return (this.Board!.turn() === 'w') ? this.white() : this.black()!;
+    public toMove(): Player {
+        const turn: Color = this.Board!.turn();
+        return this.Players.find(player => (player?.Color === turn))!;
     }
 
     public getMoves(coord: Square): Square[] {

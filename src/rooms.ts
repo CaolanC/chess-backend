@@ -1,6 +1,7 @@
 import Room from './ChessBackend/Room';
 import RoomManager from './ChessBackend/RoomManager';
 import Client from './ChessBackend/Client';
+import Player from './ChessBackend/Player';
 import Messenger from './ChessBackend/Messenger';
 import { publicDir } from './constants';
 
@@ -58,7 +59,7 @@ export function gameNotFinished(req: Request, res: Response, next: NextFunction)
 
 export function usersTurn(req: Request, res: Response, next: NextFunction): void {
     const player = req.room!.toMove();
-    if (!player.is(req.user!)) {
+    if (!player.Client.is(req.user!)) {
         res.status(400).send("Not your turn");
         return;
     }
@@ -74,7 +75,7 @@ rooms.get('/id', (req: Request, res: Response) => {
 });
 
 rooms.get('/events', (req: Request, res: Response) => {
-    const player: Client = req.room!.getPlayer(req.user!.Id)!;
+    const player: Player = req.room!.getPlayer(req.user!.Id)!;
     player.setStream(new Messenger(res));
 });
 
@@ -83,8 +84,8 @@ rooms.post("*", gameNotFinished, usersTurn); // all POSTs require it to be the u
 
 rooms.get("/info", (req: Request, res: Response) => {
     const output = {
-        color: req.room!.color(req.user!),
-        opponent: req.room!.opponent(req.user!).Name || null
+        color: req.room!.getPlayer(req.user!.Id)!.Color,
+        opponent: req.room!.opponent(req.user!).Client.Name || null
     };
     res.send(output);
 });

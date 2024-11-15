@@ -31,7 +31,7 @@ export function roomExists(req: Request, res: Response, next: NextFunction): voi
 }
 
 export function inRoom(req: Request, res: Response, next: NextFunction): void {
-    if (!req.room!.hasPlayer(req.user!.Id)) {
+    if (!req.room!.getPlayer(req.user!.Id)) {
         res.status(403).send("You're not part of this game");
         return;
     }

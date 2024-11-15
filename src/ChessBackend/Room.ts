@@ -37,10 +37,8 @@ export default class Room {
         return true;
     }
 
-    public hasPlayer(id: string): boolean {
-        return this.Players.some(player => {
-            return player?.Id === id;
-        });
+    public getPlayer(id: string): Client | undefined {
+        return this.Players.find(player => player?.Id === id);
     }
 
     public started(): boolean {
@@ -61,13 +59,13 @@ export default class Room {
 
     // return a player's color
     public color(player: Client): Color {
-        if (!this.hasPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
+        if (!this.getPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
         return player.is(this.white()) ? "w" : "b";
     }
 
     // return the opposing player
     public opponent(player: Client): Client {
-        if (!this.hasPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
+        if (!this.getPlayer(player.Id)) throw new Error(PLAYER_MESSAGE);
         return player.is(this.white()) ? this.black() : this.white();
     }
 

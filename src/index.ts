@@ -49,7 +49,7 @@ app.get(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) =
     const roomUrl = `${Routes.ROOM}/${req.room!.ID}`;
     const player: Client = req.user!;
     // if you're already in this game, we can just send you there
-    if (req.room!.hasPlayer(player.Id)) {
+    if (req.room!.getPlayer(player.Id)) {
         res.redirect(roomUrl);
         return;
     }

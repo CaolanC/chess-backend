@@ -26,11 +26,26 @@ app.use(express.static(PUBLIC_DIR));
 
 app.use(Routes.ROOM + Routes.ROOM_ID, rooms);
 
-// TODO make this POST probably
-app.get(Routes.REGISTER, (req: express.Request, res: express.Response) => {
-    req.user!.Name = req.params.username;
-    res.send(`you did it mr. ${req.user!.Name}`)
-});
+app.post(Routes.REGISTER, (req: express.Request, res: express.Response) => {
+    if (req.body.username === undefined) {
+        res.status(400).send("Missing username field");
+        return;
+    }
+
+    if (typeof req.body.username !== 'string') {
+        res.status(400).send("username must be string");
+        return;
+    }
+
+    res.status(201);
+    if (req.body.username) {
+        req.user!.Name = req.body.username;
+        res.send("Username set");
+    } else {
+        req.user!.Name = undefined;
+        res.send("Username unset");
+    }
+})
 
 app.get(Routes.NAME, (req: express.Request, res: express.Response) => {
     const output = { username: req.user!.Name || null };
@@ -44,24 +59,23 @@ app.post(Routes.CREATE, (req: express.Request, res: express.Response) => { // En
     res.redirect(`${Routes.ROOM}/${newRoom.ID}`);
 });
 
-// TODO this should be a POST
-app.get(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) => {
+app.post(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) => {
     const roomUrl = `${Routes.ROOM}/${req.room!.ID}`;
     const player: Client = req.user!;
     // if you're already in this game, we can just send you there
     if (req.room!.getPlayer(player.Id)) {
-        res.redirect(roomUrl);
+        res.redirect(303, roomUrl);
         return;
     }
 
     if (req.room!.started()) {
-        res.status(403).send('Room is full.');
+        res.status(403).send('Room is full');
         return;
     }
 
     req.room!.start(player);
     req.room!.white().poke(); // TODO error handle
-    res.redirect(roomUrl);
+    res.redirect(303, roomUrl);
 });
 
 app.listen(5299, () => {

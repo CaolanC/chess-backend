@@ -2,7 +2,7 @@ import Client from './ChessBackend/Client';
 import Room from './ChessBackend/Room';
 import RoomManager from './ChessBackend/RoomManager';
 
-import { PUBLIC_DIR, SECRET_KEY } from './constants';
+import { PUBLIC_DIR, SECRET_KEY, PORT } from './constants';
 import enforceSession from './session';
 import Routes from './routes';
 import rooms, { roomExists } from './rooms';
@@ -78,6 +78,6 @@ app.post(Routes.JOIN, roomExists, (req: express.Request, res: express.Response) 
     res.redirect(303, roomUrl);
 });
 
-app.listen(5299, () => {
-    console.log('Server is running on port 5299');
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });

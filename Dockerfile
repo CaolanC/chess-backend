@@ -35,4 +35,4 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./
 
 ENV NODE_ENV=production
-CMD ["npm", "start", "--production"]
+CMD ["npm", "start"]

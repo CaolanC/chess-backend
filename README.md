@@ -1,3 +1,10 @@
+# For Reviewers wanting to run the code:
+
+`npm run init`
+`npm run run`
+
+It will tell you which port the server is running on ( localhost:your_port )
+
 # Quickstart For Now
 
 Quick-Install Script:
